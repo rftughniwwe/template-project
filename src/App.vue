@@ -1,30 +1,15 @@
 <template>
-  <div v-loading="loading" :element-loading-text="tips" class="app-warp g-bg-main">
-    <!-- :theme-overrides="themeOverrides" -->
-    <n-config-provider
-      :locale="zhCN"
-      :date-locale="dateZhCN"
-      :theme-overrides="themeOverrides"
-    >
-    <n-notification-provider>
-      <router-view />
-      </n-notification-provider>
-    </n-config-provider>
+  <div v-loading="loading" :element-loading-text="tips">
+    <router-view />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onUnmounted } from "vue";
-import {
-  NConfigProvider,
-  zhCN,
-  dateZhCN,
-  GlobalThemeOverrides,
-} from "naive-ui";
 import bus from "@/utils/bus";
 
 export default defineComponent({
-  components: { NConfigProvider },
+  components: {},
   setup() {
     onUnmounted(() => {
       bus.off("loading");
@@ -42,23 +27,15 @@ export default defineComponent({
     const loading = ref(false);
     const tips = ref("");
 
-    const themeOverrides: GlobalThemeOverrides = {
-      common: {
-        primaryColor: "#008ba1",
-        primaryColorHover: "#4da1af",
-        primaryColorPressed: "#3b7c87",
-      },
-    };
-
     return {
       loading,
       tips,
-      zhCN,
-      dateZhCN,
-      themeOverrides,
     };
   },
 });
 </script>
 <style>
+.xxx span {
+  color: #d3af38;
+}
 </style>

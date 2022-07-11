@@ -3,91 +3,60 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/home",
+    redirect: "/dataSource",
+    name: "index",
     component: () => import("@/layouts/indexLayout.vue"),
-    name: "home",
-    meta: {
-      title: "主页",
-    },
     children: [
       {
-        path: "/home",
-        name: "home",
+        path: "/dataSource",
+        name: "dataSource",
         meta: {
-          title: "主页",
+          title: "数据源管理",
         },
-        component: () => import("@/views/home.vue"),
+        component: () => import("@/views/dataSource/dataSource.vue"),
       },
       {
-        path: "/index",
-        name: "index",
+        path: "/personMan",
+        name: "personMan",
         meta: {
-          title: "主页",
+          title: "人员管理",
         },
-        component: () => import("@/views/index.vue"),
+        component: () => import("@/views/personMan/personMan.vue"),
       },
       {
-        path: "/search",
-        name: "search",
+        path: "/auditUsag",
+        name: "auditUsag",
         meta: {
-          title: "检索",
+          title: "试用审核",
         },
-        component: () => import("@/views/search/search.vue"),
+        component: () => import("@/views/auditUsag/auditUsag.vue"),
       },
       {
-        path: "/usercenter",
-        name: "usercenter",
+        path: "/log",
+        name: "log",
         meta: {
-          title: "个人中心",
+          title: "查询记录",
         },
-        component: () => import("@/views/userCenter/userCenter.vue"),
+        component: () => import("@/views/log/log.vue"),
       },
       {
-        path: "/previewdata",
-        name: "previewdata",
+        path: "/download",
+        name: "download",
         meta: {
-          title: "预览数据",
+          title: "下载记录",
         },
-        component: () => import("@/views/previewData/previewData.vue"),
-      },
-      {
-        path: "/singleQuery",
-        name: "singlequery",
-        meta: {
-          title: "单表查询",
-        },
-        component: () => import("@/views/query/singleQueryPage.vue"),
+        component: () => import("@/views/log/download.vue"),
       },
     ],
   },
-
   {
     path: "/login",
     name: "Login",
-    redirect: "/login-register",
-    component: () => import("@/layouts/BlankLayout.vue"),
     meta: {
       title: "登录",
     },
-    children: [
-      {
-        path: "/login-register",
-        name: "login-register",
-        meta: {
-          title: "登录注册",
-        },
-        component: () => import("@/views/login/login.vue"),
-      },
-    ],
+    component: () => import("@/views/login/login.vue"),
   },
-  // {
-  //   path: "/charts",
-  //   name: "Charts",
-  //   meta: {
-  //     title: "图表",
-  //   },
-  //   component: () => import("@/views/charts/charts.vue"),
-  // },
 ];
 
 const router = createRouter({

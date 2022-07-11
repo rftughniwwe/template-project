@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver,NaiveUiResolver } from "unplugin-vue-components/resolvers";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import PurgeIcons from "vite-plugin-purge-icons";
 import commpressPlugin from "vite-plugin-compression";
 
@@ -12,10 +12,10 @@ export default defineConfig({
   plugins: [
     vue(),
     AutoImport({
-      resolvers: [ElementPlusResolver(),NaiveUiResolver()],
+      resolvers: [ElementPlusResolver()],
     }),
     Components({
-      resolvers: [ElementPlusResolver(),NaiveUiResolver()],
+      resolvers: [ElementPlusResolver()],
     }),
     PurgeIcons({
       /* PurgeIcons Options */
@@ -45,7 +45,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 9527,
+    port: 9999,
     // proxy: {
     //   "/": {
     //     target: "https://c.elanginfo.com/elang-math",

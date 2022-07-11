@@ -9,8 +9,6 @@ import ElementPlus from "element-plus";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import "element-plus/es/components/message/style/css";
 import "@purge-icons/generated";
-
-
 import { createPinia } from "pinia";
 const app = createApp(App);
 app.use(ElementPlus, {

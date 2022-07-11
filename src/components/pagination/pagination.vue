@@ -16,7 +16,7 @@ export default defineComponent({
         count.value = state;
       }
     );
-    const count = ref(props.total);
+    const count = ref(0);
     return {
       count,
       pageChange(page:number){
@@ -29,9 +29,9 @@ export default defineComponent({
 
 <template>
   <div class="wrap">
-    <n-space justify="end" align="center">
-      <n-pagination :item-count="count" @update:page="pageChange" />
-    </n-space>
+    <el-row justify="end" align="middle">
+      <el-pagination background layout="prev, pager, next" :total="count" @update:current-page="pageChange"/>
+    </el-row>
   </div>
 </template>
 
