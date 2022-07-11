@@ -1,8 +1,9 @@
 import { ElMessage } from 'element-plus'
+import { useNotification } from "naive-ui";
 function Message(type, msg) {
     ElMessage({
-        message:msg,
-        type:type,
+        message: msg,
+        type: type,
     })
     // const message = window.$message
     // if (type === 'success') {
@@ -17,6 +18,17 @@ function Message(type, msg) {
     //     message.info(msg)
     // }
 }
+
+function Notify(type, msg, content, duration) {
+    const no = useNotification()
+    no[type]({
+        content: msg,
+        description: content,
+        duration
+    })
+}
+
+
 
 const sourceOpt = [
     {
@@ -53,6 +65,10 @@ const statusOpt = [
 ]
 
 
+function backTop() {
+    document.documentElement.scrollTop = document.body.scrollTop
+}
+
 export {
-    Message, sourceOpt, statusOpt
+    Message, sourceOpt, statusOpt, backTop, Notify
 }

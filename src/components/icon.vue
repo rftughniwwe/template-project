@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-wrap" :style="{ fontSize: size }">
+  <div :class="flex" :style="{ fontSize: size }">
     <span class="iconify m-iconify" :data-icon="icon"></span>
   </div>
 </template>
@@ -11,7 +11,8 @@ export default defineComponent({
   name: "Icon",
   props: {
     icon: { type: String, required: true },
-    size: { type: String, default: "17" },
+    flex: { type: String, required: false, default: "flex-center" },
+    size: { type: String, default: "17px" },
   },
 
   setup() {
@@ -23,10 +24,5 @@ export default defineComponent({
 <style scoped lang="less">
 .m-iconify {
   margin: 0 4px;
-}
-.icon-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 </style>

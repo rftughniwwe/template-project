@@ -1,81 +1,25 @@
 <script lang='ts'>
-import { defineComponent, ref } from "vue";
-import { useRouter } from "vue-router";
-import { sourceOpt, statusOpt } from "@/utils/tool.js";
-import indexTableVue from "@/components/indexTable.vue";
-import { queryParams } from "@/utils/types";
-import indexAddEditModal from "@/components/indexAddEditModal.vue";
-import { handleExportXls } from "@/service/api/index.js";
-import Icon from "@/components/icon.vue";
-// import IndexModal from "@/components/indexModal.vue";
-import { useUserInfo } from "@/stores/user";
+import { defineComponent, onMounted, ref } from "vue";
+import singleQueryVue from "@/components/indexComponents/singleQuery.vue";
+import multipleQueryVue from "@/components/indexComponents/multipleQuery.vue";
+import { useRoute } from "vue-router";
+import { useIndex } from "@/stores/user";
 export default defineComponent({
-  components: {
-    indexTableVue,
-    indexAddEditModal,
-    Icon,
-    // IndexModal,
-  },
+  components: { singleQueryVue, multipleQueryVue },
   setup() {
-    const router = useRouter();
-    const user = useUserInfo();
-    const formValue = ref<queryParams>({
-      pageNo: 1,
-      pageSize: 10,
-      column: "createTime",
-      order: "desc",
-      querySource: "",
-      articleName: "",
-      processStatus: "",
-      articleAuthor: "",
-    });
-    let so = ref(sourceOpt);
-    let sto = ref(statusOpt);
+    const tab = ref(1);
+    const route = useRoute();
+    const uindex = useIndex();
+    let id = uindex.getIndexKey;
 
-    const addShow = ref(false);
+    if (id !== 0) {
+      //@ts-ignore
+      tab.value = id;
+    }
     return {
-      sourceOpt: so,
-      statusOpt: sto,
-      formValue,
-      handleLogout() {
-        router.replace({ path: "/login" });
-        user.remove();
-      },
-      resetSearch() {
-        formValue.value = {
-          pageNo: 1,
-          pageSize: 10,
-          column: "createTime",
-          order: "desc",
-          querySource: "",
-          articleName: "",
-          processStatus: "",
-          articleAuthor: "",
-        };
-      },
-      addShow,
-      // 新建
-      showAdd() {
-        addShow.value = true;
-      },
-      // 关闭
-      close() {
-        addShow.value = false;
-      },
-      // 导出
-      exportFun() {
-        let p = {
-          column: "createTime",
-          field:
-            "id,,querySource_dictText,articleName,authorComp,articleAuthor,articleSource,articleDate,sourceType,beiyinNum,beiyinNames,beiyinQikans,beiyinAuthors,impactFactor,downloadCount,createTime,processStatus,action",
-          order: "desc",
-          pageNo: 1,
-          pageSize: 10,
-        };
-        handleExportXls("/crawercontents/crawerContents/exportXls", p);
-      },
-      charts(){
-        router.push({path:'/charts'})
+      tab,
+      checkoutTab(num: number) {
+        tab.value = num;
       },
     };
   },
@@ -83,172 +27,97 @@ export default defineComponent({
 </script>
 
 <template>
-  <el-container class="nlayout">
-    <el-header class="nlayout-header" bordered>
-      <div class="head-container">
-        <el-row justify="space-between" align="middle">
-          <el-col :xs="10" :sm="10" :md="10" :lg="8" :xl="6">
-            <div class="h-c-topic">模板项目</div>
-          </el-col>
-          <el-col
-            :xs="10"
-            :sm="10"
-            :md="10"
-            :lg="4"
-            :xl="2"
-            style="text-align: right"
-          >
-            <div class="h-c-userinfo" @click="handleLogout">
-              <span> 退出登录</span>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
-    </el-header>
-    <el-main class="nlayout-content">
-      <div class="main-content">
-        <div class="search-content">
-          <el-form
-            ref="formRef"
-            inline
-            :label-width="80"
-            :model="formValue"
-            label-placement="left"
-          >
-            <el-form-item label="查找源:">
-              <el-select
-                class="n-form-item-input"
-                placeholder="选择查找源"
-                v-model="formValue.querySource"
-              >
-                <el-option
-                  v-for="item in sourceOpt"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="状态:">
-              <el-select
-                class="n-form-item-input"
-                placeholder="选择状态"
-                v-model="formValue.processStatus"
-              >
-                <el-option
-                  v-for="item in statusOpt"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="作者:">
-              <el-input
-                class="n-form-item-input"
-                v-model="formValue.articleAuthor"
-                placeholder="输入作者"
-              />
-            </el-form-item>
-            <el-form-item label="论文标题:">
-              <el-input
-                style="width: 250px"
-                autosize
-                class="n-form-item-input"
-                v-model="formValue.articleName"
-                placeholder="输入论文标题"
-              />
-            </el-form-item>
-            <el-form-item class="btn-content">
-              <n-button @click="resetSearch">
-                <Icon icon="mdi:autorenew" size="17px" /> 重置
-              </n-button>
-            </el-form-item>
-          </el-form>
-        </div>
-        <div class="action-content">
-          <el-space wrap>
-            <n-button type="primary" @click="showAdd">
-              <Icon icon="mdi:file-document-plus-outline" size="17px" /> 新建
-            </n-button>
-            <n-button @click="exportFun" type="warning">
-              <Icon icon="mdi:export" size="17px" /> 导出
-            </n-button>
-            <n-button @click="charts" type="info">
-              <Icon icon="mdi:export" size="17px" /> 图表
-            </n-button>
-            <!-- <n-button type="warning">
-              <template #icon>
-                <n-icon>
-                  <ArrowExportUp20Filled />
-                </n-icon>
+  <div class="head-content">
+    <div class="g-layout-container index-head">
+      <!-- <div class="search-content">
+        <n-space align="end" justify="end">
+          <div class="search-input">
+            <n-input clearable size="large" placeholder="请输入关键字">
+              <template #prefix>
+                <icon icon="bytesize:search" />
               </template>
-              导入
-            </n-button> -->
-          </el-space>
-        </div>
+            </n-input>
+          </div>
+        </n-space>
+      </div> -->
+      <div class="head-tabs">
+        <n-space justify="start">
+          <div
+            :class="['tab-pane', tab === 1 ? 'active' : '']"
+            @click="checkoutTab(1)"
+          >
+            <n-space align="center">
+              <icon icon="dashicons:database" size="20px" />
+              单表查询
+            </n-space>
+          </div>
+          <div
+            :class="['tab-pane', tab === 2 ? 'active' : '']"
+            @click="checkoutTab(2)"
+          >
+            <n-space align="center">
+              <icon icon="ant-design:database-filled" size="20px" />
+              跨表查询
+            </n-space>
+          </div>
+        </n-space>
       </div>
-      <div class="table-content">
-        <indexTableVue :qs="formValue" />
-      </div>
-    </el-main>
-    <indexAddEditModal :show="addShow" modalType="1" @close="close" />
-  </el-container>
+    </div>
+  </div>
+  <div class="g-layout-container index-main">
+    <div v-show="tab === 1">
+      <singleQueryVue />
+    </div>
+    <div v-show="tab === 2">
+      <multipleQueryVue />
+    </div>
+  </div>
 </template>
 
 <style scoped lang='less'>
-.nlayout {
-  height: 100vh;
-  min-height: 600px;
-  background: #f5f5f5;
-  .nlayout-header {
-    padding: 10px 24px;
-    background: @primary-color;
-  }
-  .nlayout-footer {
-    padding: 15px 24px;
-  }
+.head-content {
+  height: 180px;
+  background-image: url(https://naive-ui.oss-cn-beijing.aliyuncs.com/carousel-img/carousel4.jpeg);
+  background-repeat: repeat;
+  background-size: 100% 200%;
 }
-.h-c-topic {
-  font-size: 26px;
+.search-content {
+  padding: 20px 0;
+}
+.index-head {
+  position: relative;
+  height: 100%;
+}
+.head-tabs {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.tab-pane {
+  padding: 8px 15px;
+  font-size: 17px;
+
+  background-color: @primary-color;
   color: #fff;
-  cursor: pointer;
-  font-weight: bold;
   letter-spacing: 1px;
-}
-.h-c-userinfo {
-  display: inline-block;
-  color: #fff;
   cursor: pointer;
-  font-size: 14px;
-  padding: 6px 5px;
-  transition-duration: 0.2s;
-  border-radius: 2px;
-  text-align: center;
-  width: 80px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-left: 1px solid @primary-color;
+  border-right: 1px solid @primary-color;
+  border-top: 1px solid @primary-color;
+  transition: all 0.2s;
   &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    color: @primary-color;
+    background-color: #fff;
   }
 }
-.nlayout-content {
-  padding: 10px 20px;
-  background: #f5f5f5;
-}
-.main-content {
+.active {
+  color: @primary-color;
   background-color: #fff;
-  padding: 20px;
-  border-radius: 3px;
 }
-.n-form-item {
-  width: 100%;
-}
-.n-f-content {
-  color: #7e7e7e;
-  font-size: 16px;
-  text-align: center;
-}
-.table-content {
-  padding: 0 20px 30px;
-  background-color: #fff;
+.index-main {
+  padding: 30px 0;
 }
 </style>

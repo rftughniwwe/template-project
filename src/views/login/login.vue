@@ -3,14 +3,19 @@ import { defineComponent, onMounted, ref, reactive } from "vue";
 import http from "@/service/http";
 import { useRouter } from "vue-router";
 import { Message } from "@/utils/tool.js";
-import { FormRules,FormInstance } from "element-plus";
-import {useUserInfo} from '@/stores/user'
+import { FormRules, FormInstance } from "element-plus";
+import { useUserInfo } from "@/stores/user";
+import mechanismVue from "./component/mechanism.vue";
+import person from "./component/person.vue";
+import register from "./component/register.vue";
+import iplogin from "./component/iplogin.vue";
 export default defineComponent({
+  components: { mechanismVue, person, iplogin, register },
   setup() {
     onMounted(() => {
       handleChangeCheckCode();
     });
-    const user = useUserInfo()
+    const user = useUserInfo();
     const formRef = ref<FormInstance>();
     const formValue = reactive({
       account: "admin",
@@ -31,10 +36,11 @@ export default defineComponent({
         })
         .catch((err) => {
           Message("error", "获取验证码失败");
-          console.error(err)
+          console.error(err);
         });
     };
-    const loading = ref(false)
+    const show = ref(true);
+    const loading = ref(false);
     return {
       formRef,
       handleChangeCheckCode,
@@ -43,6 +49,7 @@ export default defineComponent({
       img,
       router,
       loading,
+      show,
       rules: reactive<FormRules>({
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],
         password: [
@@ -61,10 +68,12 @@ export default defineComponent({
           },
         ],
       }),
+      showChange() {
+        show.value = !show.value;
+      },
       // 登录
       login(formEl: FormInstance | undefined) {
-
-        formEl?.validate((valid,fields) => {
+        formEl?.validate((valid, fields) => {
           if (valid) {
             let params = {
               captcha: formValue.code,
@@ -72,20 +81,20 @@ export default defineComponent({
               password: formValue.password,
               username: formValue.account,
             };
-            loading.value = true
+            loading.value = true;
             http
               .post("/sys/login", params)
               .then((res: any) => {
-                loading.value = false
+                loading.value = false;
                 if (res.success) {
                   router.push({ path: "/" });
-                  user.add(res)
+                  user.add(res);
                 } else {
                   handleChangeCheckCode();
                 }
               })
               .catch((err) => {
-                loading.value = false
+                loading.value = false;
                 Message("error", "请求错误");
               });
           }
@@ -98,120 +107,94 @@ export default defineComponent({
 
 <template>
   <div class="main-container">
-    <div class="head-topic">模板项目</div>
-    <el-row justify="center" style="width: 100%; margin: 60px 0 40px">
-      <el-col :xs="16" :sm="14" :md="10" :lg="8" :xl="6">
-        <div class="login-content-wrap">
-          <div class="login-content">
-            <div class="topic">账号登录</div>
-            <div class="login-card">
-              <el-form
-                ref="formRef"
-                :label-width="80"
-                label-placement="left"
-                :model="formValue"
-                hide-required-asterisk
-                :rules="rules"
-                @keydown.enter="login(formRef)"
+    <div class="head-topic">
+      <div class="g-layout-container">资源数据库</div>
+    </div>
+    <div class="main-content">
+      <n-space justify="center" class="main-content-f">
+        <div class="login-content">
+          <div v-if="show">
+            <n-card class="ncard" :bordered="false">
+              <template #header>
+                <span class="login-title">账号登录</span>
+              </template>
+              <n-tabs
+                size="large"
+                class="card-tabs"
+                default-value="mechanism"
+                animated
               >
-                <el-form-item label="账号" prop="account">
-                  <el-input
-                    size="large"
-                    v-model="formValue.account"
-                    placeholder="admin"
-                  />
-                </el-form-item>
-                <el-form-item label="密码" prop="password">
-                  <el-input
-                    type="password"
-                    size="large"
-                    show-password-on="mousedown"
-                    v-model="formValue.password"
-                    placeholder="elang1234"
-                  />
-                </el-form-item>
-                <el-form-item label="验证码" prop="code">
-                  <el-row justify="space-between" align="middle" :gutter="10">
-                    <el-col :span="15">
-                      <el-input
-                        size="large"
-                        v-model="formValue.code"
-                        placeholder="输入验证码"
-                      />
-                    </el-col>
-                    <el-col :span="9">
-                      <div class="green">
-                        <img
-                          v-if="img"
-                          @click="handleChangeCheckCode"
-                          :src="img"
-                          alt=""
-                        />
-                        <img v-else src="@/assets/checkcode.png" alt="" />
-                      </div>
-                    </el-col>
-                  </el-row>
-                </el-form-item>
-                <n-button type="info" block :loading="loading" @click="login(formRef)" style="margin:40px 0 10px" size="large">登 录</n-button>
-              </el-form>
-            </div>
+                <n-tab-pane name="mechanism" tab="密码登录">
+                  <mechanismVue />
+                </n-tab-pane>
+                <!-- <n-tab-pane name="person" tab="个人登录">
+                <person />
+              </n-tab-pane> -->
+                <n-tab-pane name="ip" tab="ip登录">
+                  <iplogin />
+                </n-tab-pane>
+              </n-tabs>
+              <div class="register">
+                还没账号?
+                <n-button text tag="a" type="primary" @click="showChange"
+                  >立即申请</n-button
+                >
+              </div>
+            </n-card>
+          </div>
+          <div v-else-if="!show">
+            <n-card class="ncard-register" :bordered="false">
+              <template #header>
+                <span class="login-title">账号申请</span>
+              </template>
+              <register />
+              <div class="register">
+                <n-button text tag="a" type="info" @click="showChange"
+                  >返回登录</n-button
+                >
+              </div>
+            </n-card>
           </div>
         </div>
-      </el-col>
-    </el-row>
+      </n-space>
+    </div>
   </div>
 </template>
 
 <style scoped lang='less'>
 .main-container {
-  position: relative;
-  &:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    min-height: 800px;
-    width: 100%;
-    background-image: url("https://s.cn.bing.net/th?id=OHR.Balsamroot_ZH-CN9456182640_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&qlt=30");
-    background-size: 100% 130%;
-    filter: blur(3px);
-    z-index: -1;
+  height: 100vh;
+  min-height: 800px;
+  box-sizing: content-box;
+  width: 100%;
+  background-image: url(@/assets/login-bg.jpg);
+  background-repeat: no-repeat;
+  .ncard {
+    width: 400px;
+    box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.12);
   }
-  .head-topic {
-    width: 70%;
-    margin: 0 auto;
-    padding: 20px 40px;
-    font-size: 30px;
-    color: #000;
+  .ncard-register {
+    width: 500px;
+    box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.12);
+  }
+  .main-content-f {
+    padding: 0 60px;
+  }
+  .login-title {
     font-weight: bold;
-  }
-  .login-content {
-    opacity: 0.9;
-    padding: 24px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 4px;
-    box-shadow: 0 0 7px rgba(0, 0, 0, 0.2);
-  }
-  .topic {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
-  }
-  .login-card {
-    margin-top: 20px;
+    letter-spacing: 1px;
+    font-size: 20px;
   }
 }
-.green {
-  height: 38px;
-  img {
-    width: 100%;
-    cursor: pointer;
-    height: 100%;
-  }
+.head-topic {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+  padding: 15px 0;
+  font-size: 28px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  color: #fff;
 }
-.login-content-wrap {
-  padding: 30px;
+.register {
+  margin: 15px 2px 0;
 }
 </style>

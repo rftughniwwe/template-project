@@ -32,7 +32,7 @@
     "src/**/*.vue",
     "src/utils/hooks.js",
     "src/service/api/index.js"
-  ],
+, "src/permission.js"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
